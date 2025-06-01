@@ -1,0 +1,31 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    h3.mb-4.text-primary Danh sách bài tập cho bài học: #{lesson.title}
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+    a.btn.btn-success.mb-3(href="/courses/" + course.slug + "/lessons/" + lesson._id + "/assignments/create") Tạo bài tập mới
+    if assignments.length
+      ul.list-group
+        each assignment, idx in assignments
+          li.list-group-item.d-flex.justify-content-between.align-items-center
+            .flex-grow-1
+              a(href="/courses/" + course.slug + "/lessons/" + lesson._id + "/assignments/" + assignment._id, class="text-decoration-none text-dark")
+                span.fw-semibold #{assignment.title}
+                if assignment.description
+                  p.mb-0.text-muted #{assignment.description}
+            .ms-2
+              if idx > 0
+                form(action=`/courses/${course.slug}/lessons/${lesson._id}/assignments/${assignment._id}/move-up`, method="post", style="display:inline")
+                  button.btn.btn-sm.btn-outline-secondary.me-1(type="submit" title="Lên trên") ↑
+              if idx < assignments.length - 1
+                form(action=`/courses/${course.slug}/lessons/${lesson._id}/assignments/${assignment._id}/move-down`, method="post", style="display:inline")
+                  button.btn.btn-sm.btn-outline-secondary(type="submit" title="Xuống dưới") ↓
+    else
+      p.text-muted Chưa có bài tập nào cho bài học này.
+
+    a.btn.btn-secondary.mt-4(href="/courses/" + course.slug + "/lessons/" + lesson._id) Quay lại bài học

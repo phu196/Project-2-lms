@@ -1,0 +1,104 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    // Hiển thị thông báo flash
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    if !user
+      .row.justify-content-center
+        .col-12.col-md-8
+          .bg-white.p-5.rounded.shadow.text-center
+            h1.mb-4 Chào mừng đến với hệ thống Học Trực Tuyến!
+            p.fs-5.mb-3 Nền tảng học tập hiện đại, kết nối giảng viên và học viên mọi lúc, mọi nơi.
+            ul.list-unstyled.mb-4
+              li.mb-2 📚 Đa dạng khóa học chất lượng
+              li.mb-2 👨‍🏫 Đội ngũ giảng viên giàu kinh nghiệm
+              li.mb-2 💻 Học mọi lúc, mọi nơi
+            a.btn.btn-primary.btn-lg(href="/user/register") Bắt đầu ngay
+    else
+      if user.role === 'teacher'
+        .row.g-4
+          // Thông tin cá nhân
+          .col-12.col-md-4
+            .bg-white.p-4.rounded.shadow
+              h2.fs-5.fw-semibold.mb-2 Thông tin cá nhân
+              p.mb-1
+                strong Email:
+                |  #{user.email}
+              p.mb-1
+                strong Vai trò:
+                |  Giảng viên
+              p.mb-0
+                strong Ngày tham gia:
+                |  #{user.createdAt ? user.createdAt.toLocaleDateString('vi-VN') : ''}
+
+          // Quản lý khóa học
+          .col-12.col-md-8
+            .bg-white.p-4.rounded.shadow
+              .d-flex.justify-content-between.align-items-center.mb-4
+                h2.fs-5.fw-semibold.mb-0 Khóa học của tôi
+                a.btn.btn-primary.btn-sm(href="/courses/create") + Tạo khóa học
+              .row.g-3
+                // Lặp qua các khóa học của giảng viên
+                each course in courses
+                  .col-12.col-md-6
+                    .border.p-3.rounded.bg-light.hover-shadow
+                      h3.fw-bold.text-primary.fs-6 #{course.title}
+                      p.text-muted.mb-1 Số học viên: #{course.students ? course.students.length : 0}
+                      .d-flex.justify-content-between.mt-2.text-sm
+                        a.text-primary.text-decoration-underline(href=`/courses/${course.slug}/manage`) Quản lý
+                        a.text-success.text-decoration-underline(href=`/courses/${course.slug}/students`) Xem học viên
+
+          // Thông báo hệ thống
+          .col-12
+            .bg-white.p-4.rounded.shadow
+              h2.fs-5.fw-semibold.mb-3 Thông báo hệ thống
+              ul.list-unstyled.mb-0
+                li.mb-1
+                  | 📝 Hệ thống đã cập nhật chức năng chấm bài tự động.
+                li
+                  | 📢 Bạn có thể tải file báo cáo điểm của học viên.
+
+      else
+        .row.g-4
+          // Thông tin người dùng
+          .col-12.col-md-4
+            .bg-white.p-4.rounded.shadow
+              h2.fs-5.fw-semibold.mb-2 Thông tin cá nhân
+              p.mb-1
+                strong Email:
+                |  #{user.email}
+              p.mb-1
+                strong Vai trò:
+                |  Học viên
+              p.mb-0
+                strong Ngày tham gia:
+                |  #{user.createdAt ? user.createdAt.toLocaleDateString('vi-VN') : ''}
+
+          // Khóa học đã đăng ký
+          .col-12.col-md-8
+            .bg-white.p-4.rounded.shadow
+              h2.fs-5.fw-semibold.mb-4 Khóa học của bạn
+              .row.g-3
+                // Lặp qua các khóa học của học viên
+                each course in courses
+                  .col-12.col-md-6
+                    .border.p-3.rounded.bg-light.hover-shadow
+                      h3.fw-bold.text-primary.fs-6 #{course.title}
+                      p.text-muted.mb-1 GV: #{course.instructorName}
+                      a(href=`/courses/${course.slug}` class="text-primary text-decoration-underline fs-7") Xem chi tiết
+
+          // Thông báo
+          .col-12
+            .bg-white.p-4.rounded.shadow
+              h2.fs-5.fw-semibold.mb-3 Thông báo mới
+              ul.list-unstyled.mb-0
+                li.mb-1
+                  | 💡 Bạn có bài tập mới trong khóa học "Node.js cơ bản". Hạn nộp: 30/05.
+                li
+                  | 🆕 Khóa học "ReactJS toàn tập" đã mở đăng ký.

@@ -1,0 +1,57 @@
+header.navbar.navbar-expand-lg.navbar-light.bg-white.shadow.px-4.py-3
+  .container-fluid
+    // Logo bên trái
+    a.navbar-brand.d-flex.align-items-center(href="/")
+      img(src="/images/image.png", alt="Logo", class="img-fluid me-2", style="max-width:50px;")
+      span.text-primary.fw-bold(style="font-size:1.25rem") Hệ thống LMS
+
+    // Toggle button (cho mobile)
+    button.navbar-toggler(type="button", data-bs-toggle="collapse", data-bs-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+      span.navbar-toggler-icon
+
+    // Navbar menu
+    #navbarNav.collapse.navbar-collapse
+      ul.navbar-nav.mx-auto
+        li.nav-item
+          a.nav-link.text-dark.fw-medium(href="/")
+            i.bi.bi-house-door.me-1
+            | Trang chủ
+        li.nav-item
+          a.nav-link.text-dark.fw-medium(href="/courses")
+            i.bi.bi-journal-bookmark.me-1
+            | Khóa học
+
+      // Phần user bên phải
+      .d-flex.align-items-center.gap-2
+        if user
+          .dropdown.d-flex.align-items-center.gap-2
+            span.text-dark.fw-semibold #{user.fullName}
+            a.dropdown-toggle.d-flex.align-items-center(href="#", role="button", id="userDropdown", data-bs-toggle="dropdown", aria-expanded="false")
+              img(src=user.avatar || '/images/default-avatar.png', alt="Avatar", class="rounded-circle", style="width:40px; height:40px; object-fit:cover;")
+            ul.dropdown-menu.dropdown-menu-end(aria-labelledby="userDropdown")
+              li
+                a.dropdown-item(href="/user/profile")
+                  i.bi.bi-person-circle.me-2
+                  | Thông tin cá nhân
+              li
+                a.dropdown-item(href="/user/mycourses")
+                  i.bi.bi-journal-text.me-2
+                  | Khóa học của tôi
+              li
+                a.dropdown-item(href="/user/password")
+                  i.bi.bi-shield-lock.me-2
+                  | Đổi mật khẩu
+              li
+                hr.dropdown-divider
+              li
+                a.dropdown-item.text-danger(href="/user/logout")
+                  i.bi.bi-box-arrow-right.me-2
+                  | Đăng xuất
+        else
+          a.btn.btn-outline-info.btn-sm(href="/user/login")
+            i.bi.bi-box-arrow-in-right.me-1
+            | Đăng nhập
+          a.btn.btn-outline-success.btn-sm(href="/user/register")
+            i.bi.bi-person-plus.me-1
+            | Đăng ký
+  

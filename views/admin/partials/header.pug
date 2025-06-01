@@ -1,0 +1,16 @@
+header.header   
+    .container-fluid 
+        .row.align-items-center 
+            .col-3 
+                .inner-logo 
+                    a(href="/admin/dashboard") ADMIN
+            
+            .col-9.text-right
+                a(
+                href=`${prefixAdmin}/accounts/my-profile`
+                class="btn btn-info btn-sm mr-2"
+                ) #{user.fullName}
+                a(
+                href=`${prefixAdmin}/auth/logout`
+                class="btn btn-danger btn-sm"
+                ) Đăng xuất

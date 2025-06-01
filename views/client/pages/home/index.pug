@@ -1,0 +1,23 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    .row.justify-content-center
+      .col-12.col-md-8
+        .bg-white.p-5.rounded.shadow.text-center
+          h1.mb-4 Chào mừng đến với hệ thống Học Trực Tuyến!
+          p.fs-5.mb-3 Nền tảng học tập hiện đại, kết nối giảng viên và học viên mọi lúc, mọi nơi.
+          ul.list-unstyled.mb-4
+            li.mb-2 📚 Đa dạng khóa học chất lượng
+            li.mb-2 👨‍🏫 Đội ngũ giảng viên giàu kinh nghiệm
+            li.mb-2 💻 Học mọi lúc, mọi nơi
+          if !user
+            a.btn.btn-primary.btn-lg(href="/user/login") Bắt đầu ngay
+          else
+            a.btn.btn-primary.btn-lg(href="/dashboard") Bắt đầu ngay

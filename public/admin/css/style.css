@@ -1,0 +1,126 @@
+/* CSS cho phần header */
+header.header {
+    background-color: rgba(0, 0, 0, 0.832); /* Màu nền đen */
+    padding: 10px 0; /* Khoảng cách trên và dưới */
+}
+
+header.header .container-fluid {
+    max-width: 1200px; /* Độ rộng tối đa của header */
+    margin: 0 auto; /* Canh giữa */
+}
+
+header.header .inner-logo a {
+    color: #fff; /* Màu chữ trắng cho "ADMIN" */
+    font-size: 24px; /* Kích thước chữ */
+    font-weight: bold; /* Độ đậm của chữ */
+    text-decoration: none; /* Loại bỏ gạch chân */
+}
+
+header.header .row.align-items-center {
+    display: flex;
+    align-items: center;
+}
+
+header.header .col-3,
+header.header .col-9 {
+    display: flex;
+    align-items: center;
+}
+
+header.header .col-3 .inner-logo {
+    margin-left: 10px; /* Khoảng cách từ mép trái */
+}
+
+
+/* CSS cho phần container chung */
+.body {
+    display: flex; /* Sử dụng Flexbox để bố trí bên cạnh nhau */
+}
+
+/* Định dạng sider */
+.sider {
+    background-color: #333; /* Nền xám đậm */
+    color: #fff; /* Màu chữ trắng */
+    width: 200px; /* Chiều rộng sidebar */
+    min-height: 100vh; /* Chiều cao toàn màn hình */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Định dạng cho inner-menu */
+.sider .inner-menu ul {
+    list-style-type: disc; /* Dấu chấm đầu dòng */
+    list-style-position: inside; /* Dấu chấm nằm bên trong phần tử li */
+    padding: 0;
+    margin: 0;
+}
+
+.sider .inner-menu li {
+    margin-bottom: 10px; /* Khoảng cách giữa các mục */
+    font-size: 18px; /* Kích thước chữ của đề mục */
+    display: flex; /* Sử dụng flex để dấu chấm và đề mục nằm cùng một dòng */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.sider .inner-menu li a {
+    color: rgb(0, 166, 255); /* Màu chữ trắng cho các liên kết */
+    text-decoration: none; /* Loại bỏ gạch chân */
+    padding: 5px 10px; /* Padding cho liên kết */
+    border-radius: 5px; /* Bo góc cho liên kết */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu khi hover */
+}
+
+.sider .inner-menu li a:hover {
+    background-color: #444; /* Màu nền khi hover */
+}
+
+/* Định dạng main */
+.main {
+    flex: 1; /* Chiếm toàn bộ không gian còn lại */
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f9f9f9; /* Màu nền cho main */
+}
+
+
+/* Định dạng chung cho badge */
+.badge {
+    display: inline-block; /* Hiển thị dưới dạng inline block */
+    padding: 5px 10px; /* Khoảng cách trong badge */
+    font-size: 14px; /* Kích thước chữ */
+    font-weight: 600; /* Độ đậm chữ */
+    color: #fff; /* Màu chữ trắng */
+    text-align: center; /* Căn giữa chữ */
+    border-radius: 12px; /* Bo tròn các góc */
+    text-decoration: none; /* Loại bỏ gạch chân */
+}
+
+/* Định dạng cho badge-success (màu xanh lá cây) */
+.badge-success {
+    background-color: #28a745; /* Màu nền xanh lá */
+}
+
+.badge-success:hover {
+    background-color: #218838; /* Màu nền khi hover */
+}
+/* Định dạng cho badge-danger (màu đỏ) */
+.badge-danger {
+    background-color: #dc3545; /* Màu nền đỏ */
+}
+
+.badge-danger:hover {
+    background-color: #c82333; /* Màu nền khi hover */
+}
+
+
+.custom-image {
+    width: 100px; /* Chiều rộng ảnh */
+    height: auto; /* Chiều cao tự động, giữ tỷ lệ */
+    object-fit: cover; /* Tùy chọn để ảnh hiển thị gọn trong khung */
+}
+
+.small-col {
+    width: 120px; /* Điều chỉnh giá trị này để thu nhỏ cột theo ý muốn */
+    text-align: center; /* Căn giữa nội dung trong cột */
+    font-size: 0.85rem; /* Giảm kích thước font nếu cần */
+}

@@ -1,0 +1,41 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    h2.mb-4.text-primary Danh sách bài đã nộp
+
+    if submissions.length
+      table.table.table-bordered.table-hover
+        thead
+          tr
+            th STT
+            th Học viên
+            th Email
+            th Ngày nộp
+            th Điểm
+            th
+        tbody
+          each s, idx in submissions
+            tr
+              td #{idx + 1}
+              td
+                if s.userId && s.userId.fullname
+                  | #{s.userId.fullname}
+                else if s.userId && s.userId.name
+                  | #{s.userId.name}
+                else
+                  | [Ẩn danh]
+              td
+                if s.userId && s.userId.email
+                  | #{s.userId.email}
+                else
+                  | -
+              td= s.createdAt ? s.createdAt.toLocaleString('vi-VN') : '-'
+              td= s.grade != null ? s.grade + '/10' : '-'
+              td
+                a.btn.btn-sm.btn-info(href=`/courses/${course.slug}/lessons/${lesson._id}/assignments/${assignment._id}/submissions/${s._id}`) Xem chi tiết
+    else
+      .alert.alert-info.mt-4 Chưa có bài nộp nào cho bài tập này.
+
+    .mt-4
+      a.btn.btn-secondary(href=`/courses/${course.slug}/lessons/${lesson._id}/assignments`) Quay lại danh sách bài tập

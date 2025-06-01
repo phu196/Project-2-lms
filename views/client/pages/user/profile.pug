@@ -1,0 +1,32 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+  .container.my-3
+    .row
+      .col-12
+        +box-head(pageTitle)
+
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    .card.mt-4.shadow
+      .card-body
+        h5.card-title Thông tin cá nhân
+        .row.mb-3
+          .col-md-4.font-weight-bold Họ và tên: #{user.fullName}
+        .row.mb-3
+          .col-md-4.font-weight-bold Email: #{user.email}
+        .row.mb-3
+          .col-md-4.font-weight-bold Vai trò: 
+            if user.role === 'teacher'
+              span.text-info Giáo viên
+            else if user.role === 'student'
+              span.text-secondary Học viên
+            else
+              span.text-dark #{user.role}
+        .row.mb-3
+          .col-md-4.font-weight-bold Ngày tạo tài khoản: #{new Date(user.createdAt).toLocaleDateString('vi-VN')}

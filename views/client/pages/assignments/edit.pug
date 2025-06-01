@@ -1,0 +1,109 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    h2.mb-3.text-primary Sửa bài tập: #{assignment.title}
+    form(method="POST", action="/courses/" + course.slug + "/lessons/" + lesson._id + "/assignments/" + assignment._id + "/edit", enctype="multipart/form-data")
+      .mb-3
+        label.form-label(for="title") Tiêu đề bài tập
+        input.form-control(type="text", name="title", id="title", value=assignment.title, required)
+      .mb-3
+        label.form-label(for="description") Mô tả bài tập
+        textarea.form-control(name="description", id="description", rows="3")= assignment.description
+      .mb-3
+        label.form-label(for="dueDate") Hạn nộp
+        input.form-control(type="date", name="dueDate", id="dueDate", value=assignment.dueDate ? assignment.dueDate.toISOString().substring(0,10) : "")
+
+      .mb-3
+        label.form-label(for="attachment") File đề (có thể thay thế)
+        if assignment.attachment
+          p
+            | File hiện tại: 
+            a(href=assignment.attachment, target="_blank") Xem file
+        input.form-control(type="file", name="attachment", id="attachment", accept=".pdf,.doc,.docx,.zip,.rar")
+
+      h5.mt-4.mb-3.text-success
+        i.bi.bi-list-ol.me-2
+        | Danh sách câu hỏi
+
+      #questions-container
+        if questions.length
+          each q, idx in questions
+            .question-block.p-3.mb-4.border.rounded.bg-light(data-index=idx)
+              input(type="hidden", name="questions[" + idx + "][_id]", value=q._id)
+              .mb-2
+                label.form-label Loại câu hỏi
+                select.form-select(name="questions[" + idx + "][type]", onchange="toggleOptions(this)")
+                  option(value="single_choice", selected=q.type === 'single-choice' || q.type === 'single_choice') Trắc nghiệm 1 đáp án
+                  option(value="multiple_choice", selected=q.type === 'multiple-choice' || q.type === 'multiple_choice') Trắc nghiệm nhiều đáp án
+                  option(value="fill_in_blank", selected=q.type === 'fill-in-blank' || q.type === 'fill_in_blank') Điền đáp án
+              .mb-2
+                label.form-label Nội dung câu hỏi
+                input.form-control(type="text", name="questions[" + idx + "][content]", value=q.content || q.questiontext, required)
+              .mb-2
+                label.form-label Ảnh cho nội dung câu hỏi (có thể chọn nhiều)
+                button.btn.btn-outline-secondary.btn-sm(type="button", onclick=`addImageInput(this, ${idx})`) Thêm ảnh
+                .images-list(id="images-list-" + idx)
+                  if q.images && q.images.length
+                    each img, imgIdx in q.images
+                      .image-input-block.mb-2.d-flex.align-items-center
+                        img(src=img.url, alt="Ảnh câu hỏi", style="max-width:80px;max-height:80px;margin-right:8px;")
+                        input(type="hidden", name="questions[" + idx + "][oldImages][]", value=img.url)
+                        button.btn.btn-danger.btn-sm(type="button", onclick="this.parentNode.remove()") Xóa
+              .mb-2
+                label.form-label Tuỳ chọn đáp án (mỗi dòng là 1 đáp án)
+                textarea.form-control.option-input(
+                  name="questions[" + idx + "][options]",
+                  rows="4",
+                  placeholder="A. Đáp án 1\nB. Đáp án 2",
+                  data-index=idx,
+                  oninput="renderOptionPreview(this)"
+                )= q.options && q.options.length ? q.options.map(opt => opt.optionText).join('\n') : ""
+              .mb-2.preview-options(id="option-preview-" + idx)
+              .mb-2
+                label.form-label Đáp án đúng (nếu nhiều đáp án, cách nhau bởi dấu phẩy)
+                input.form-control(type="text", name="questions[" + idx + "][correctAnswer]", value=Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer)
+              button.btn.btn-outline-danger.btn-sm.mt-2(type="button", onclick="removeQuestion(this)") Xóa câu hỏi
+        else
+          .question-block.p-3.mb-4.border.rounded.bg-light(data-index="0")
+            .mb-2
+              label.form-label Loại câu hỏi
+              select.form-select(name="questions[0][type]", onchange="toggleOptions(this)")
+                option(value="single_choice") Trắc nghiệm 1 đáp án
+                option(value="multiple_choice") Trắc nghiệm nhiều đáp án
+                option(value="fill_in_blank") Điền đáp án
+            .mb-2
+              label.form-label Nội dung câu hỏi
+              input.form-control(type="text", name="questions[0][content]", required)
+            .mb-2
+              label.form-label Ảnh cho nội dung câu hỏi (có thể chọn nhiều)
+              button.btn.btn-outline-secondary.btn-sm(type="button", onclick="addImageInput(this, 0)") Thêm ảnh
+              .images-list#images-list-0
+            .mb-2
+              label.form-label Tuỳ chọn đáp án (mỗi dòng là 1 đáp án)
+              textarea.form-control.option-input(
+                name="questions[0][options]",
+                rows="4",
+                placeholder="A. Đáp án 1\nB. Đáp án 2",
+                data-index="0",
+                oninput="renderOptionPreview(this)"
+              )
+            .mb-2.preview-options(id="option-preview-0")
+            .mb-2
+              label.form-label Đáp án đúng (nếu nhiều đáp án, cách nhau bởi dấu phẩy)
+              input.form-control(type="text", name="questions[0][correctAnswer]")
+            button.btn.btn-outline-danger.btn-sm.mt-2(type="button", onclick="removeQuestion(this)") Xóa câu hỏi
+
+      button.btn.btn-outline-secondary.mb-4(type="button", onclick="addQuestion()")
+        i.bi.bi-plus-circle.me-1
+        | Thêm câu hỏi
+
+      .d-flex.justify-content-end
+        button.btn.btn-primary(type="submit")
+          i.bi.bi-check-circle.me-1
+          | Lưu thay đổi
+        a.btn.btn-secondary.ms-2(href="/courses/" + course.slug + "/lessons/" + lesson._id + "/assignments") Hủy
+
+  script.
+    window.questionIndex = document.querySelectorAll('.question-block').length;
+  script(src="/js/questionForm.js")

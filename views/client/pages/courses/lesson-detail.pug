@@ -1,0 +1,125 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.py-5
+    .bg-white.p-4.rounded.shadow-sm
+      h2.mb-4.text-primary.fw-bold
+        i.bi.bi-journal-bookmark-fill.me-2
+        | #{lesson.title}
+
+      // Hiển thị thông báo flash
+      if success && success.length
+        .alert.alert-success= success
+      if error && error.length
+        .alert.alert-danger= error
+
+      if lesson.content
+        .mb-4
+          h5.text-secondary
+            i.bi.bi-card-text.me-2
+            | Nội dung bài học
+          p !{lesson.content}
+
+      if lesson.description
+        .mb-4
+          h5.text-secondary
+            i.bi.bi-info-circle.me-2
+            | Mô tả bài học
+          p #{lesson.description}
+
+      if lesson.videoUrl
+        .mb-4
+          h5.text-secondary
+            i.bi.bi-camera-reels.me-2
+            | Video bài giảng
+          if lesson.videoType === 'youtube'
+            -
+              function getYoutubeId(url) {
+                const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+              }
+              const youtubeId = getYoutubeId(lesson.videoUrl);
+            if youtubeId
+              .ratio.ratio-16x9
+                iframe(src=`https://www.youtube.com/embed/${youtubeId}`, frameborder="0", allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture", allowfullscreen)
+            else
+              p.text-danger Link YouTube không hợp lệ!
+          else
+            video(controls, class="w-100 rounded", style="max-width: 800px")
+              source(src=lesson.videoUrl, type="video/mp4")
+              | Trình duyệt của bạn không hỗ trợ video.
+
+      if lesson.pdfUrl
+        .mb-4
+          h5.text-secondary
+            i.bi.bi-file-earmark-pdf.me-2
+            | Tài liệu PDF
+          a.btn.btn-outline-primary(href=lesson.pdfUrl, target="_blank")
+            i.bi.bi-box-arrow-up-right.me-1
+            | Xem tài liệu PDF
+
+      // Hiển thị danh sách assignment
+      if assignments && assignments.length
+        .mb-4
+          h5.text-secondary
+            i.bi.bi-clipboard-check.me-2
+            | Bài tập (Assignment)
+          // Nút tạo assignment cho giảng viên
+          if isTeacher
+            a.btn.btn-success.mb-3(href="/courses/" + course.slug + "/lessons/" + lesson._id + "/assignments/create")
+              i.bi.bi-plus-circle.me-1
+              | Thêm bài tập 
+          ul.list-group
+            each assignment in assignments
+              li.list-group-item
+                a(href="/courses/" + course.slug + "/lessons/" + lesson._id + "/assignments/" + assignment._id, class="text-decoration-none text-dark")
+                  span.fw-semibold #{assignment.title}
+                  if assignment.description
+                    p.mb-0.text-muted #{assignment.description}
+          .mt-3
+            a.btn.btn-info(href=`/courses/${course.slug}/lessons/${lesson._id}/assignments`)
+              i.bi.bi-list-task.me-1
+              | Danh sách bài tập
+      else
+        .mb-4
+          h5.text-secondary
+            i.bi.bi-clipboard-check.me-2
+            | Bài tập (Assignment)
+          if isTeacher
+            a.btn.btn-success.mb-3(href="/courses/" + course.slug + "/lessons/" + lesson._id + "/assignments/create")
+              i.bi.bi-plus-circle.me-1
+              | Thêm bài tập 
+          p.text-muted Chưa có bài tập nào cho bài học này.
+
+      a.btn.btn-secondary.mt-3(href="/courses/#{course.slug}/course")
+        i.bi.bi-arrow-left.me-1
+        | Quay lại danh sách bài học
+
+      // Hiển thị danh sách bình luận
+      .mb-4
+        h5.text-secondary
+          i.bi.bi-chat-dots.me-2
+          | Bình luận
+
+        if comments && comments.length
+          ul.list-group.mb-3
+            each cmt in comments.slice().reverse()
+              li.list-group-item.p-3.mb-2.rounded.shadow-sm(style="background-color: #f9f9f9")
+                - const userName = cmt.userId && (cmt.userId.fullName || cmt.userId.name) || '[Ẩn danh]'
+                .d-flex.justify-content-between.mb-2
+                  if cmt.userId && cmt.userId.role === 'teacher'
+                    strong.text-primary.fw-bold= userName
+                  else
+                    strong.fw-semibold.text-dark= userName
+                  small.text-muted= cmt.createdAt.toLocaleString('vi-VN')
+                p.mb-0.text-break= cmt.content
+
+        else
+          p.text-muted Chưa có bình luận nào.
+
+        // Form gửi bình luận
+        form(method="POST", action=`/courses/${course.slug}/lessons/${lesson._id}/comments`)
+          .input-group
+            input.form-control(type="text", name="content", placeholder="Nhập bình luận...", required)
+            button.btn.btn-primary(type="submit") Gửi

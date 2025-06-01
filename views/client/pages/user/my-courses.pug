@@ -1,0 +1,59 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    if user && user.role === 'teacher'
+      h2.mb-4 Các khóa học bạn quản lý
+
+      .row.g-4
+        // Quản lý khóa học
+        .col-12.col-md-8
+          .bg-white.p-4.rounded.shadow
+            .d-flex.justify-content-between.align-items-center.mb-4
+              h2.fs-5.fw-semibold.mb-0 Khóa học của tôi
+              a.btn.btn-primary.btn-sm(href="/courses/create") + Tạo khóa học
+            .row.g-3
+              if courses && courses.length
+                each course in courses
+                  .col-12.col-md-6
+                    .border.p-3.rounded.bg-light.hover-shadow
+                      h3.fw-bold.text-primary.fs-6 #{course.title}
+                      p.text-muted.mb-1 Số học viên: #{course.students ? course.students.length : 0}
+                      .d-flex.justify-content-between.mt-2.text-sm
+                        a.text-primary.text-decoration-underline(href=`/courses/${course.slug}/manage`) Quản lý
+                        a.text-success.text-decoration-underline(href=`/courses/${course.slug}`) Xem chi tiết
+              else
+                .col-12
+                  p.text-muted Bạn chưa quản lý khóa học nào.
+
+    else if user && user.role === 'student'
+      h2.mb-4 Các khóa học bạn đang tham gia
+
+      .row.g-4
+        // Khóa học đã đăng ký
+        .col-12.col-md-8
+          .bg-white.p-4.rounded.shadow
+            h2.fs-5.fw-semibold.mb-4 Khóa học của bạn
+            .row.g-3
+              if courses && courses.length
+                each course in courses
+                  .col-12.col-md-6
+                    .border.p-3.rounded.bg-light.hover-shadow
+                      h3.fw-bold.text-primary.fs-6 #{course.title}
+                      p.text-muted.mb-1
+                        | GV: 
+                        span.text-primary.fw-bold
+                          if course.teacherNames && course.teacherNames.length
+                            | #{course.teacherNames[0]}
+                          else
+                            | Đang cập nhật
+                      a(href=`/courses/${course.slug}` class="text-primary text-decoration-underline fs-7") Vào học
+              else
+                .col-12
+                  p.text-muted Bạn chưa tham gia khóa học nào.

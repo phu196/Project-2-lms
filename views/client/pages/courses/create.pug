@@ -1,0 +1,33 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    .row.justify-content-center
+      .col-12.col-md-8
+        .bg-white.p-4.rounded.shadow
+          h2.mb-4 Tạo khóa học mới
+
+          // Hiển thị thông báo flash
+          if success && success.length
+            .alert.alert-success= success
+          if error && error.length
+            .alert.alert-danger= error
+
+          form(method="POST" action="/courses/create")
+            .form-group.mb-3
+              label(for="title") Tên khóa học *
+              input#title.form-control(type="text" name="title" required)
+            .form-group.mb-3
+              label(for="description") Mô tả
+              textarea#description.form-control(name="description" rows="3")
+            .form-group.mb-3
+              label(for="price") Học phí (VNĐ) *
+              input#price.form-control(type="number" name="price" min="0" required)
+            .form-group.mb-3
+              label(for="discountPercentage") Giảm giá (%)
+              input#discountPercentage.form-control(type="number" name="discountPercentage" min="0" max="100" value="0")
+            .form-group.mb-3
+              label(for="thumbnail") Ảnh đại diện
+              input#thumbnail.form-control(type="text" name="thumbnail" placeholder="Nhập URL ảnh hoặc để trống")
+            .form-group.mb-4
+              button.btn.btn-primary(type="submit") Tạo khóa học

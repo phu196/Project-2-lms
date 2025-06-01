@@ -1,0 +1,67 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+  .course-detail.bg-light.py-5
+    .container
+
+      // Hiển thị thông báo flash
+      if success && success.length
+        .alert.alert-success= success
+      if error && error.length
+        .alert.alert-danger= error
+
+      // Tiêu đề và hình ảnh
+      .row.mb-5.align-items-center
+        .col-md-6
+          .course-image.text-center
+            if (course.thumbnail)
+              img(src=course.thumbnail, alt=course.title, class="img-fluid rounded shadow", style="max-height: 400px;")
+            else
+              div.bg-secondary.text-white.p-5.rounded Shadow Không có hình ảnh
+        .col-md-6
+          if (course.title)
+            h1.mb-3.text-primary.fw-bold #{course.title}
+
+          // Giảng viên
+          if course.teacherNames && course.teacherNames.length
+            p.mb-3
+              strong.text-dark Giảng viên:
+              span.text-primary.fw-semibold.ms-2(style="font-size: 1.1rem") #{course.teacherNames[0]}
+          else
+            p.text-muted.mb-3
+              strong Giảng viên: 
+              |  Đang cập nhật
+
+          a.btn.btn-lg.btn-outline-primary.mt-3(href=`/courses/${course.slug}/course`)
+            i.bi.bi-play-circle-fill.me-1
+            | Vào học ngay
+
+      // Mô tả khóa học
+      .row.mb-5
+        .col-12
+          +box-head("Mô tả khóa học")
+          .bg-white.shadow-sm.rounded.p-4
+            if (course.description)
+              .inner-desc !{course.description}
+            else
+              p.text-muted Chưa có mô tả cho khóa học này.
+
+      hr
+
+      // Danh sách bài học
+      .row.mt-5
+        .col-12
+          h3.mb-4.text-secondary.fw-semibold
+            i.bi.bi-list-check.me-2
+            | Danh sách bài học
+          if course.lessons && course.lessons.length
+            ul.list-group.shadow-sm
+              each lesson, idx in course.lessons
+                li.list-group-item.d-flex.justify-content-between.align-items-center
+                  span
+                    i.bi.bi-book.me-2.text-primary
+                    | #{lesson.title}
+                  span.badge.bg-primary.text-white #{idx + 1}
+          else
+            p.text-muted Chưa có bài học nào trong khóa học này.

@@ -1,0 +1,78 @@
+extends ../../layouts/default.pug
+
+block main
+    h1(class="mb-4") Chi tiết khóa học
+
+    .card.mb-4
+        .card-header.bg-primary.text-white
+            h2 #{course.title}
+
+        .card-body
+            .row
+                .col-md-6
+                    if (course.thumbnail)
+                        img(
+                            src=course.thumbnail
+                            alt=course.title
+                            class="img-fluid rounded"
+                            style="width: 100%; max-height: 300px; object-fit: cover;"
+                        )
+                    else
+                        div(class="text-muted") Không có ảnh
+
+                .col-md-6
+                    if (course.status)
+                        div(class="mb-3") 
+                            span(class="fw-bold") Trạng thái: 
+                            if (course.status === "active")
+                                span(class="badge bg-success") Hoạt động
+                            else
+                                span(class="badge bg-danger") Dừng hoạt động
+
+            hr
+
+            .row
+                .col-md-12
+                    if (course.description)
+                        div(class="mb-4") 
+                            span(class="fw-bold") Mô tả: 
+                            div !{course.description}
+                    else
+                        div(class="text-muted") Không có mô tả
+
+            .row
+                .col-md-6
+                    if (course.instructor)
+                        div(class="mb-3") 
+                            span(class="fw-bold") Giảng viên: 
+                            span #{course.instructor}
+                    else
+                        div(class="text-muted") Giảng viên chưa được chỉ định
+                .col-md-6
+                    if (course.duration)
+                        div(class="mb-3") 
+                            span(class="fw-bold") Thời lượng: 
+                            span #{course.duration} giờ
+                    else
+                        div(class="text-muted") Thời lượng chưa được cập nhật
+
+            .row
+                .col-md-6
+                    if (course.lessons)
+                        div(class="mb-3") 
+                            span(class="fw-bold") Số bài học: 
+                            span #{course.lessons}
+                    else
+                        div(class="text-muted") Số bài học chưa được cập nhật
+
+    .d-flex.justify-content-between.mt-4
+        a(
+            href=`${prefixAdmin}/courses/edit/${course.id}`
+            class="btn btn-warning"
+        ) Chỉnh sửa
+        a(
+            href=`${prefixAdmin}/courses`
+            class="btn btn-secondary"
+        ) Quay lại danh sách
+
+    script(src="/admin/js/course.js")

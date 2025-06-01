@@ -1,0 +1,79 @@
+extends ../../layouts/default.pug
+
+block main
+  h1(class="mb-4") Danh sách người dùng
+
+  .card.mb-3
+    .card-header Danh sách
+    .card-body
+      .row
+        .col-8
+        .col-4.text-right
+          a(
+            href=`${prefixAdmin}/users/create`
+            class="btn btn-outline-success"
+          ) + Thêm mới
+
+      table(
+        class="table table-hover table-sm"
+      )
+        thead
+          tr
+            th STT
+            th Avatar
+            th Họ tên
+            th Email
+            th Vai trò
+            th Trạng thái
+            th Hành động
+
+        tbody
+          each item, index in users
+            tr 
+              td #{index+1}
+              td
+                if item.avatar
+                  img(
+                    src=item.avatar
+                    alt=item.fullName
+                    width="100px"
+                    height="auto"
+                  )
+                else
+                  span.text-muted Không có ảnh
+              td #{item.fullName}
+              td #{item.email}
+              td 
+                if item.role === 'teacher'
+                  span.badge.badge-info.text-dark Giáo viên
+                else if item.role === 'student'
+                  span.badge.badge-secondary.text-dark Học viên
+                else
+                  span.badge.badge-light.text-dark #{item.role}
+              td
+                if (item.status === "active")
+                  a(
+                    href="javascript:;"
+                    class="badge badge-success"
+                    data-status="active"
+                  ) Hoạt động
+                else
+                  a(
+                    href="javascript:;"
+                    class="badge badge-danger"
+                    data-status="inactive"
+                  ) Dừng hoạt động
+              td
+                a(
+                  class="btn btn-secondary btn-sm"
+                  href=`${prefixAdmin}/users/edit/${item.id}`
+                ) Sửa
+                a(
+                  class="btn btn-info btn-sm ml-1"
+                  href=`${prefixAdmin}/users/change-password/${item.id}`
+                ) Đổi mật khẩu
+                button(
+                  class="btn btn-danger btn-sm ml-1"
+                  data-id=item.id
+                  button-delete
+                ) Xóa

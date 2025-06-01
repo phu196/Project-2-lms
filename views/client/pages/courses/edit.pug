@@ -1,0 +1,29 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    h2.mb-4.text-primary Chỉnh sửa khóa học: #{course.title}
+
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    form(method="POST", action=`/courses/${course.slug}/edit`, enctype="multipart/form-data")
+      .mb-3
+        label(for="title") Tiêu đề khóa học
+        input.form-control(type="text", name="title", required, value=course.title)
+      .mb-3
+        label(for="description") Mô tả khóa học
+        textarea.form-control(name="description", rows="3")= course.description
+      .mb-3
+        label(for="thumbnail") Ảnh đại diện khóa học
+        if course.thumbnail
+          p.mb-1.text-success Ảnh hiện tại:
+            img(src=course.thumbnail, alt="Thumbnail", style="max-width:200px;display:block;")
+        input.form-control(type="file", name="thumbnail", accept="image/*")
+        input.form-control.mt-2(type="text", name="thumbnailUrl", placeholder="Hoặc dán link ảnh", value=course.thumbnail)
+      button.btn.btn-primary(type="submit") Lưu thay đổi
+
+    a.btn.btn-secondary.mt-3(href=`/courses/${course.slug}`) Quay lại chi tiết khóa học

@@ -1,0 +1,42 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    h2.mb-4.text-primary Chỉnh sửa bài học: #{lesson.title}
+
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    form(method="POST", action=`/courses/${course.slug}/lessons/${lesson._id}/edit`, enctype="multipart/form-data")
+      .mb-3
+        label(for="title") Tiêu đề bài học
+        input.form-control(type="text", name="title", required, value=lesson.title)
+      .mb-3
+        label(for="content") Nội dung bài học
+        textarea.form-control(name="content", rows="3", required)= lesson.content
+      .mb-3
+        label(for="description") Mô tả bài học
+        textarea.form-control(name="description", rows="2")= lesson.description
+      .mb-3
+        label(for="pdf") Tài liệu PDF
+        if lesson.pdfUrl
+          p.mb-1.text-success Đã có file/pdf: 
+            a(href=lesson.pdfUrl, target="_blank") Xem PDF hiện tại
+        input.form-control(type="file", name="pdf", accept="application/pdf")
+        input.form-control.mt-2(type="text", name="pdfUrl", placeholder="Hoặc dán link PDF", value=lesson ? lesson.pdfUrl : '')
+      .mb-3
+        label(for="video") Video bài giảng
+        if lesson.videoUrl
+          p.mb-1.text-success Đã có video: 
+            if lesson.videoType === 'youtube'
+              a(href=lesson.videoUrl, target="_blank") Xem video YouTube hiện tại
+            else
+              a(href=lesson.videoUrl, target="_blank") Xem video hiện tại
+        input.form-control(type="file", name="video", accept="video/*")
+        input.form-control.mt-2(type="text", name="videoUrl", placeholder="Hoặc dán link video", value=lesson ? lesson.videoUrl : '')
+      button.btn.btn-primary(type="submit") Lưu thay đổi
+
+    a.btn.btn-secondary.mt-3(href=`/courses/${course.slug}/course`) Quay lại danh sách bài học

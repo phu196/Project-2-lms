@@ -1,0 +1,85 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    h2.mb-3.text-primary
+      i.bi.bi-clipboard-check.me-2
+      | Chi tiết bài đã nộp
+
+    .mb-3
+        strong Học viên: 
+        if submission.userId && submission.userId.fullname
+            | #{submission.userId.fullname}
+        else if submission.userId && submission.userId.name
+            | #{submission.userId.name}
+        else if submission.userId && submission.userId.email
+            | #{submission.userId.email}
+        else
+            | [Ẩn danh]
+    .mb-3
+      strong Ngày nộp: 
+      | #{submission.createdAt ? submission.createdAt.toLocaleString('vi-VN') : '-'}
+    .mb-3
+      strong Điểm số: 
+      | #{submission.grade != null ? submission.grade + '/10' : '-'}
+
+    hr
+
+    h4.mb-3.text-success
+      i.bi.bi-list-ol.me-2
+      | Đáp án chi tiết
+
+    ol.ps-3
+      each ans, idx in submission.answers
+        - const q = questionMap[ans.questionId?.toString()]
+        li.mb-4
+          if q
+            .fw-semibold.mb-2.d-block #{q.content || q.questiontext}
+            if q.images && q.images.length
+              .mb-2
+                each img, imgIdx in q.images
+                  img(src=img.url, alt="Ảnh câu hỏi", style="max-width:180px;max-height:180px;margin:0 8px 8px 0;display:inline-block;")
+            if q.type === 'single-choice' || q.type === 'single_choice' || q.type === 'multiple-choice' || q.type === 'multiple_choice'
+              if q.options && q.options.length
+                .ms-3
+                  each opt, oidx in q.options
+                    .form-check.mb-2
+                      - let isUserAnswer = Array.isArray(ans.answer) ? ans.answer.includes(opt.optionText) : ans.answer == opt.optionText
+                      - let isCorrect = Array.isArray(q.correctAnswer) ? q.correctAnswer.includes(opt.optionText) : q.correctAnswer == opt.optionText
+                      input.form-check-input(
+                        type=q.type === 'multiple-choice' || q.type === 'multiple_choice' ? "checkbox" : "radio",
+                        checked=isUserAnswer,
+                        disabled=true
+                      )
+                      label.form-check-label(
+                        style=isCorrect ? "color:green;font-weight:bold" : ""
+                      ) #{opt.optionText}
+                      if isUserAnswer
+                        if isCorrect
+                          span.badge.bg-success.ms-2 Đúng
+                        else
+                          span.badge.bg-danger.ms-2 Sai
+            else if q.type === 'fill-in-blank'
+              label.form-label(for=`answer_${q._id}`) Câu trả lời của bạn:
+              input.form-control(
+                type="text",
+                id=`answer_${q._id}`,
+                value=ans.answer,
+                readonly=true,
+                style=ans.isCorrect ? "border:2px solid #28a745" : "border:2px solid #dc3545"
+              )
+              if ans.isCorrect
+                span.badge.bg-success.ms-2 Đúng
+              else
+                span.badge.bg-danger.ms-2 Sai
+              .mt-2
+                span.text-muted Đáp án đúng:
+                if Array.isArray(q.correctAnswer)
+                  | #{q.correctAnswer.join(', ')}
+                else
+                  | #{q.correctAnswer}
+          else
+            .text-danger Câu hỏi đã bị xóa hoặc không tồn tại.
+
+    .mt-4
+      a.btn.btn-secondary(href=`/courses/${course.slug}/lessons/${lesson._id}/assignments/${assignment._id}/submissions`) Quay lại danh sách bài nộp

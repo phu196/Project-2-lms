@@ -1,0 +1,45 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.my-5
+    .row.justify-content-center
+      .col-8
+        h1.text-center.mb-4 Đăng nhập
+
+        // Hiển thị thông báo flash
+        if success && success.length
+          .alert.alert-success= success
+        if error && error.length
+          .alert.alert-danger= error
+
+        form(
+          action="/user/login"
+          method="POST"
+        )
+          div.form-group
+            label(for="email") Email
+            input(
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              required
+            )
+          div.form-group
+            label(for="password") Mật khẩu
+            input(
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            )
+          div.form-group
+            button(
+              type="submit"
+              class="btn btn-primary btn-block"
+            ) Đăng nhập
+        a(href="/user/password/forgot") Quên mật khẩu?
+        br
+        span Chưa có tài khoản? 
+        a(href="/user/register") Đăng ký

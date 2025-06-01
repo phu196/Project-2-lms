@@ -1,0 +1,17 @@
+# Thư mục node_modules chứa các gói cài đặt của Node.js
+node_modules/
+
+# Tệp .env chứa các biến môi trường
+.env
+
+# Thư mục chứa tệp build
+dist/
+build/
+
+# Tệp log và các tệp tạm thời
+*.log
+*.tmp
+
+# Thư mục .cache và .temp
+.cache/
+.temp/

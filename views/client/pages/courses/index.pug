@@ -1,0 +1,35 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+  .container.my-5
+    .row.mb-4
+      .col-12.text-center
+        +box-head("Danh sách khóa học")
+
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    .row.g-4
+      each item in courses
+        .col-12
+          .card.shadow-sm.border-0.rounded-3.transition.h-100
+            .row.g-0.align-items-center
+              .col-md-3
+                a(href=`/courses/${item.slug}`)
+                  img(
+                    src=item.thumbnail,
+                    alt=item.title,
+                    class="img-fluid rounded-start",
+                    style="max-height: 120px; object-fit: cover;"
+                  )
+              .col-md-9
+                .card-body
+                  h5.card-title.mb-1
+                    a(href=`/courses/${item.slug}`, class="text-decoration-none text-primary fw-bold") #{item.title}
+                  p.card-text.text-muted.mb-2
+                    | #{item.shortDescription || 'Chưa có mô tả ngắn'}
+                  a.btn.btn-outline-primary.btn-sm(href=`/courses/${item.slug}`) Xem chi tiết

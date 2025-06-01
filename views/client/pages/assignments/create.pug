@@ -1,0 +1,72 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-4
+    h3.mb-4.text-primary
+      i.bi.bi-clipboard-plus.me-2
+      | Tạo bài tập mới cho bài học
+
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    form(method="POST", action=`/courses/${slug}/lessons/${lessonId}/assignments/create`, enctype="multipart/form-data")
+      .mb-3
+        label.form-label(for="title") Tiêu đề bài tập
+        input.form-control(type="text", name="title", required)
+      
+      .mb-3
+        label.form-label(for="description") Mô tả bài tập
+        textarea.form-control(name="description", rows="3")
+      
+      .mb-3
+        label.form-label(for="attachment") Đính kèm file đề (nếu có)
+        input.form-control(type="file", name="attachment", accept=".pdf,.doc,.docx,.zip,.rar")
+
+      h5.mt-4.mb-3.text-success
+        i.bi.bi-list-ol.me-2
+        | Danh sách câu hỏi
+
+      #questions-container
+        .question-block.p-3.mb-4.border.rounded.bg-light(data-index="0")
+          .mb-2
+            label.form-label Loại câu hỏi
+            select.form-select(name="questions[0][type]", onchange="toggleOptions(this)")
+              option(value="single_choice") Trắc nghiệm 1 đáp án
+              option(value="multiple_choice") Trắc nghiệm nhiều đáp án
+              option(value="fill_in_blank") Điền đáp án
+
+          .mb-2
+            label.form-label Nội dung câu hỏi
+            input.form-control(type="text", name="questions[0][content]", required)
+
+          .mb-2
+            label.form-label Ảnh cho nội dung câu hỏi (có thể chọn nhiều)
+            // Nút thêm ảnh
+            button.btn.btn-outline-secondary.btn-sm(type="button", onclick="addImageInput(this, 0)") Thêm ảnh
+            // Danh sách input ảnh động sẽ được thêm vào đây
+            .images-list#images-list-0
+
+          .mb-2
+            label.form-label Tuỳ chọn đáp án (mỗi dòng là 1 đáp án)
+            textarea.form-control.option-input(name="questions[0][options]", rows="4", placeholder="A. Đáp án 1\nB. Đáp án 2", data-index="0", oninput="renderOptionPreview(this)")
+
+          .mb-2.preview-options(id="option-preview-0")
+            // Chỗ này sẽ tự động được render qua JS mỗi lần người dùng gõ
+
+          button.btn.btn-outline-danger.btn-sm.mt-2(type="button", onclick="removeQuestion(this)") Xóa câu hỏi
+
+      button.btn.btn-outline-secondary.mb-4(type="button", onclick="addQuestion()")
+        i.bi.bi-plus-circle.me-1
+        | Thêm câu hỏi
+
+      .d-flex.justify-content-end
+        button.btn.btn-primary(type="submit")
+          i.bi.bi-check-circle.me-1
+          | Tạo bài tập
+
+  
+  script(src="/js/questionForm.js")
+
+  

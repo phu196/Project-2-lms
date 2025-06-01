@@ -1,0 +1,120 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.py-5
+    .div.d-flex.justify-content-between.align-items-center.mb-4
+      h2.text-primary.fw-bold.mb-0
+        i.bi.bi-journal-code.me-2
+        | Quản lý khóa học: #{course.title}
+      a.btn.btn-outline-primary.d-flex.align-items-center(href=`/courses/${course.slug}/edit`)
+        i.bi.bi-pencil-fill.me-2
+        | Sửa khóa học
+
+    // Hiển thị thông báo flash
+    if success && success.length
+      .alert.alert-success= success
+    if error && error.length
+      .alert.alert-danger= error
+
+    // Thông tin khóa học
+    .row.mb-5.align-items-center
+      .col-md-4.text-center
+        if course.thumbnail
+          img(src=course.thumbnail, alt=course.title, class="img-fluid rounded shadow-sm", style="max-height: 240px;")
+        else
+          div.bg-secondary.text-white.p-5.rounded Không có ảnh
+      .col-md-8
+        .bg-white.p-4.rounded.shadow-sm
+          h5.text-dark.mb-3
+            i.bi.bi-info-circle-fill.me-2
+            | Thông tin khóa học
+          p.mb-2
+            strong Mô tả:
+            |  #{course.description}
+          p.mb-0
+            strong Giảng viên:
+            span.text-primary.fw-semibold.ms-2 #{course.teacherNames && course.teacherNames.length ? course.teacherNames[0] : 'Đang cập nhật'}
+
+    hr
+
+    // Thêm học viên
+    .bg-white.p-4.rounded.shadow-sm.mb-5
+      h4.mb-3.text-success
+        i.bi.bi-person-plus-fill.me-2
+        | Thêm học viên vào khóa học
+      form(method="POST", action=`/courses/${course.slug}/add-student`)
+        .input-group
+          input.form-control(type="email", name="email", placeholder="Nhập email học viên", required)
+          button.btn.btn-success(type="submit")
+            i.bi.bi-plus-circle.me-1
+            | Thêm
+
+    // Danh sách học viên
+    h4.text-secondary.mb-3
+      i.bi.bi-people-fill.me-2
+      | Danh sách học viên
+    if course.students && course.students.length
+      ul.list-group.shadow-sm.mb-5
+        each student in course.students
+          li.list-group-item.d-flex.justify-content-between.align-items-center
+            span
+              i.bi.bi-person.me-2
+              | #{student.fullName}
+            small.text-muted #{student.email}
+    else
+      p.text-muted.mb-5 Chưa có học viên nào trong khóa học này.
+
+    hr
+
+    // Thêm bài học
+    .bg-white.p-4.rounded.shadow-sm.mb-5
+      h4.text-primary.mb-4
+        i.bi.bi-journal-plus.me-2
+        | Thêm bài học mới
+      form(method="POST", action=`/courses/${course.slug}/add-lesson`, enctype="multipart/form-data")
+        .mb-3
+          label.form-label(for="title") Tiêu đề bài học
+          input.form-control(type="text", name="title", required)
+        .mb-3
+          label.form-label(for="content") Nội dung bài học
+          textarea.form-control(name="content", rows="3", required)
+        .mb-3
+          label.form-label(for="description") Mô tả bài học
+          textarea.form-control(name="description", rows="2")
+        .mb-3
+          label.form-label(for="pdf") Tài liệu PDF
+          input.form-control(type="file", name="pdf", accept="application/pdf")
+          input.form-control.mt-2(type="text", name="pdfUrl", placeholder="Hoặc dán link PDF")
+        .mb-3
+          label.form-label(for="video") Video bài giảng
+          input.form-control(type="file", name="video", accept="video/*")
+          input.form-control.mt-2(type="text", name="videoUrl", placeholder="Hoặc dán link video")
+        button.btn.btn-primary(type="submit")
+          i.bi.bi-upload.me-1
+          | Thêm bài học
+
+    // Danh sách bài học
+    h4.text-secondary.mt-4.mb-3
+      i.bi.bi-list-task.me-2
+      | Danh sách bài học
+
+    if lessons.length
+      ul.list-group.shadow-sm
+        each lesson, idx in lessons
+          li.list-group-item.d-flex.justify-content-between.align-items-center
+            span
+              i.bi.bi-book-fill.me-2.text-primary
+              | #{lesson.title}
+            .btn-group.btn-group-sm
+              if idx > 0
+                form(method="POST", action=`/courses/${course.slug}/lessons/${lesson._id}/move-up`, style="display:inline;")
+                  button.btn.btn-outline-secondary(type="submit", title="Di chuyển lên") ↑
+              if idx < lessons.length - 1
+                form(method="POST", action=`/courses/${course.slug}/lessons/${lesson._id}/move-down`, style="display:inline;")
+                  button.btn.btn-outline-secondary(type="submit", title="Di chuyển xuống") ↓
+              a.btn.btn-outline-primary(href=`/courses/${course.slug}/lessons/${lesson._id}`, title="Xem chi tiết") Xem
+              a.btn.btn-outline-warning(href=`/courses/${course.slug}/lessons/${lesson._id}/edit`, title="Sửa") Sửa
+              form(method="POST", action=`/courses/${course.slug}/lessons/${lesson._id}/delete`, style="display:inline;")
+                button.btn.btn-outline-danger(type="submit" onclick="return confirm('Bạn có chắc muốn xóa bài học này?')") Xóa
+    else
+      p.text-muted Chưa có bài học nào trong khóa học này.

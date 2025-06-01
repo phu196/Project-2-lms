@@ -1,0 +1,107 @@
+extends ../../layouts/default.pug
+include ../../mixins/filter-status.pug
+include ../../mixins/search.pug
+include ../../mixins/pagination.pug
+
+block main
+    h1 Danh sách khóa học
+
+    .card.mb-3 
+        .card-header Bộ lọc và tìm kiếm
+            .card-body 
+                .row
+                    .col-6
+                        +filter-status(filterStatus)
+                    .col-6 
+                        +search(keyword)    
+
+    .card.mb-3 
+        .card-header Danh sách
+            .card-body
+                .row 
+                    .col-4
+                        a(
+                            href=`${prefixAdmin}/courses/create`
+                            class="btn btn-outline-success"
+                        ) + Thêm mới
+                table.table.table-hover.table-sm
+                    thead 
+                        tr 
+                            th STT 
+                            th Hình ảnh 
+                            th Tiêu đề
+                            th Giảng viên
+                            th Thời lượng
+                            th Số bài học
+                            th Vị trí
+                            th Trạng thái 
+                            th Hành động
+                            th Ngày đăng
+                            th Ngày cập nhật
+
+                    tbody 
+                        each item, index in courses
+                            tr
+                                td #{index+1}
+                                td 
+                                    img(
+                                        src=item.thumbnail, 
+                                        alt=item.title
+                                        width="100px"
+                                        height="auto"
+                                        )
+                                td #{item.title}
+                                td #{item.price}$
+                                td #{item.instructor || "Chưa cập nhật"}
+                                td #{item.duration || "Chưa cập nhật"} giờ
+                                td #{item.lessons || "Chưa cập nhật"}
+                                td #{item.position}
+                                td 
+                                    if(item.status == "active")
+                                        a(
+                                            href="javascript:;" 
+                                            data-status=item.status 
+                                            data-id=item.id 
+                                            button-change-status 
+                                            class="badge badge-success"
+                                        ) Hoạt động
+                                    else 
+                                        a(
+                                            href="javascript:;" 
+                                            data-status=item.status 
+                                            data-id=item.id 
+                                            button-change-status 
+                                            class="badge badge-danger"
+                                        ) Dừng hoạt động
+                                td 
+                                    a(
+                                        class="btn btn-secondary btn-sm"
+                                        href=`${prefixAdmin}/courses/detail/${item.id}`
+                                    ) Chi tiết
+                                    a(
+                                        href=`${prefixAdmin}/courses/edit/${item.id }`
+                                        class="btn btn-warning btn-sm") Sửa
+                                    button(
+                                        class="btn btn-danger btn-sm ml-1"
+                                        button-delete
+                                        data-id=item.id
+                                        ) Xóa
+                                td(class="small-col") #{item.createdAt}
+                                td(class="small-col") #{item.updatedAt}
+
+    +pagination(pagination)
+
+    form(
+        action="", 
+        method="POST",
+        id="form-change-status",
+        data-path=`${prefixAdmin}/courses/change-status`
+        ) 
+
+    form(
+        action="", 
+        method="POST",
+        id="form-delete-item",
+        data-path=`${prefixAdmin}/courses/delete`
+        ) 
+    script(src="/admin/js/course.js")

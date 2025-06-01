@@ -1,0 +1,44 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.py-5
+    .bg-white.p-4.rounded.shadow-sm
+      h2.mb-4.text-primary.fw-bold
+        i.bi.bi-mortarboard-fill.me-2
+        | Khóa học: #{course.title}
+
+      // Hiển thị thông báo flash
+      if success && success.length
+        .alert.alert-success= success
+      if error && error.length
+        .alert.alert-danger= error
+
+      if course.description
+        p.mb-4.text-muted.fs-5
+          i.bi.bi-card-text.me-2
+          | #{course.description}
+
+      // Danh sách bài học
+      h4.mb-3.mt-4.text-secondary
+        i.bi.bi-journal-text.me-2
+        | Danh sách bài học
+
+      if course.lessons && course.lessons.length
+        .d-flex.flex-column.gap-3
+          each lesson in course.lessons
+            a(href=`/courses/${course.slug}/lessons/${lesson._id}`, style="text-decoration: none; color: inherit;")
+              .card.shadow-sm.p-3.hover-shadow.transition
+                h5.mb-1.text-primary
+                  i.bi.bi-journal-bookmark-fill.me-2
+                  | #{lesson.title}
+                if lesson.content
+                  p.text-muted.mb-0.truncate #{lesson.content}
+      else
+        p.text-muted.fst-italic Chưa có bài học nào trong khóa học này.
+
+      // Thông tin giảng viên
+      hr
+      if course.teacherNames && course.teacherNames.length
+        p.mb-0
+          strong Giảng viên:
+          span.text-primary.fw-bold.ms-2 #{course.teacherNames[0]}

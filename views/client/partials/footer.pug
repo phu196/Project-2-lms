@@ -1,0 +1,27 @@
+footer.bg-light.text-dark.py-4.mt-5.border-top
+  .container
+    .row
+      // Cột logo bên trái
+      .col-md-4.d-flex.align-items-center
+        a(href="/", class="d-flex align-items-center text-decoration-none text-dark")
+          img(src="/images/image.png", alt="Logo", style="max-width:50px; height:auto;")
+          span.ms-2.fw-bold(style="font-size:1.2rem") LMS Education
+
+      // Cột liên hệ ở giữa
+      .col-md-4.text-center
+        p.text-muted.mb-1
+          i.bi.bi-geo-alt-fill.me-2
+          | 1 Đ. Đại Cồ Việt, Bách Khoa, Hai Bà Trưng, Hà Nội
+        p.text-muted.mb-1
+          i.bi.bi-envelope-fill.me-2
+          | support@lms.edu.vn
+        p.text-muted
+          i.bi.bi-telephone-fill.me-2
+          | 0123 456 789
+
+      // Cột trống bên phải để cân bằng layout
+      .col-md-4
+
+    hr.border-top.mt-4
+    .text-center.text-muted.fs-6
+      | © #{new Date().getFullYear()} LMS Education. All rights reserved.

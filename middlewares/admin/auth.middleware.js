@@ -3,7 +3,6 @@ const Account = require("../../models/account.model");
 const Role = require("../../models/role.model");
 
 module.exports.requireAuth = async (req, res, next) => {
-  console.log("🍪 Cookies nhận được:", req.cookies); // 👈 Thêm dòng này
   if (!req.cookies.token) {
     res.redirect(`${systemConfig.prefixAdmin}/auth/login`);
     return;

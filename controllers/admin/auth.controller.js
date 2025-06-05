@@ -10,12 +10,8 @@ module.exports.login = (req, res) => {
   });
 }
 
-
 module.exports.loginPost = async (req, res) => {
   const { email, password } = req.body;
-  console.log("📩 Dữ liệu nhận được từ form:", { email, password });
-  const allUsers = await Account.find({});
-  console.log("📋 Danh sách tất cả tài khoản:", allUsers);
 
   const user = await Account.findOne({
     email: email,
@@ -44,7 +40,6 @@ module.exports.loginPost = async (req, res) => {
   }
 
   res.cookie("token", user.token);
-  console.log("✅ Token đã set vào cookie:", user.token);
 
   res.redirect(`${systemConfig.prefixAdmin}/dashboard`);
 };

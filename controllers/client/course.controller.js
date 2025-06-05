@@ -135,7 +135,7 @@ module.exports.detail = async (req, res) => {
 module.exports.manage = async (req, res) => {
     const course = await Course.findOne({ slug: req.params.slug, delete: false })
         .populate('students')
-        .lean(); // nên dùng lean để làm nhẹ object và dễ thao tác
+        .lean(); 
 
     if (!course) {
         req.flash("error", "Không tìm thấy khóa học!");

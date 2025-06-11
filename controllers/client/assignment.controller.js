@@ -7,6 +7,7 @@ const Submission = require("../../models/submission.model");
 const mongoose = require("mongoose");
 
 const { parseOptions } = require("../../helpers/questionParser");
+const { isEqualArray, normalizeAnswerItem } = require("../../helpers/questionParser");
 
 // [GET] /courses/:slug/lessons/:lessonId/assignments
 module.exports.listAssignments = async (req, res) => {
@@ -148,78 +149,80 @@ module.exports.createAssignmentPost = async (req, res) => {
             return res.redirect("back");
         }
 
-        // Lấy order lớn nhất hiện tại
+        // Lấy thứ tự (order)
         const maxOrderAssignment = await Assignment.findOne({ lessonId: lesson._id, delete: { $ne: true } }).sort({ order: -1 });
         const nextOrder = maxOrderAssignment && typeof maxOrderAssignment.order === 'number' ? maxOrderAssignment.order + 1 : 1;
 
-        // Tạo bài tập mới
+        // Tạo bài tập
         const assignment = new Assignment({
             title,
             description,
             courseId: course._id,
             lessonId: lesson._id,
             dueDate: req.body.dueDate || null,
-            order: nextOrder // <-- thêm dòng này
+            order: nextOrder
         });
 
         await assignment.save();
 
-        // Thêm assignment vào lesson
+        // Gán vào lesson
         lesson.assignments = lesson.assignments || [];
         lesson.assignments.push(assignment._id);
         await lesson.save();
 
-        // Xử lý danh sách câu hỏi
+        // Xử lý câu hỏi
         const questionsData = req.body.questions || [];
         const questionDocs = [];
         assignment.question = questionDocs;
+
         for (const q of questionsData) {
             if (!q.content || !q.correctAnswer || !q.type) continue;
 
-            // Chuyển định dạng kiểu câu hỏi nếu cần
             const formattedType = q.type.replace(/_/g, '-');
-
-
-            // Parse options thành mảng đối tượng: { optionText, isCorrect }
-            const options = (formattedType === 'single-choice' || formattedType === 'multiple-choice')
-                ? parseOptions(q.options, q.correctAnswer)
-                : [];
-
-            // Xử lý đáp án đúng cho fill_in_blank
             let correctAnswer = q.correctAnswer;
+
+            // Chuẩn hóa đáp án đúng
             if (formattedType === 'multiple-choice') {
                 if (typeof correctAnswer === 'string') {
                     correctAnswer = correctAnswer
                         .split(',')
                         .map(ans => ans.trim())
-                        .filter(ans => ans !== ''); // loại phần tử rỗng
+                        .filter(ans => ans !== '');
                 } else if (Array.isArray(correctAnswer)) {
                     correctAnswer = correctAnswer
-                        .map(ans => ans.trim())
-                        .filter(ans => ans !== ''); // ✅ thêm dòng này để loại bỏ `""`
+                        .map(ans => String(ans).trim())
+                        .filter(ans => ans !== '');
                 }
-            }
-            else if (formattedType === 'fill-in-blank') {
+            } else if (formattedType === 'fill-in-blank') {
                 if (typeof correctAnswer === 'string' && correctAnswer.includes(',')) {
                     correctAnswer = correctAnswer.split(',').map(ans => ans.trim());
                 } else if (typeof correctAnswer === 'string') {
                     correctAnswer = correctAnswer.trim();
                 }
             }
+
+            // Parse options (nếu có)
+            const options = (formattedType === 'single-choice' || formattedType === 'multiple-choice')
+                ? parseOptions(q.options, correctAnswer)
+                : [];
+
             const question = new Question({
                 assignmentId: assignment._id,
                 questiontext: q.content.trim(),
                 type: formattedType,
                 options,
-                correctAnswer: correctAnswer,
+                correctAnswer,
                 points: q.points || 1
             });
+
+            console.log(`➡️ [TẠO - SỬA] Câu hỏi: ${q.content.trim()}`);
+            console.log("CorrectAnswer:", correctAnswer);
             console.log("OPTIONS:", options);
+
             await question.save();
             questionDocs.push(question._id);
         }
 
-        // Gán danh sách câu hỏi cho assignment
         assignment.question = questionDocs;
         await assignment.save();
 
@@ -229,7 +232,7 @@ module.exports.createAssignmentPost = async (req, res) => {
     } catch (err) {
         console.error("Assignment creation error:", err);
         req.flash("error", "Có lỗi xảy ra khi tạo bài tập.");
-        return res.redirect("back");
+        res.redirect(req.get("Referrer") || "/");
     }
 };
 
@@ -325,11 +328,11 @@ module.exports.editAssignmentPost = async (req, res) => {
             const question = await Question.findById(q._id);
             if (question) {
                 question.questiontext = q.content.trim();
-                question.type = q.type.replace('_', '-');
+                question.type = q.type.replace(/_/g, '-');
                 // Xử lý options và đáp án đúng
                 question.options = parseOptions(q.options, q.correctAnswer);
                 let correctAnswer = q.correctAnswer;
-                if (question.type === 'fill-in-blank') {
+                if (['fill-in-blank', 'multiple-choice'].includes(question.type)) {
                     if (typeof correctAnswer === 'string' && correctAnswer.includes(',')) {
                         correctAnswer = correctAnswer.split(',').map(ans => ans.trim());
                     } else if (typeof correctAnswer === 'string') {
@@ -337,12 +340,14 @@ module.exports.editAssignmentPost = async (req, res) => {
                     }
                 }
                 question.correctAnswer = correctAnswer;
+                console.log("➡️ [TẠO - SỬA] Câu hỏi:", question.questiontext);
+                console.log("CorrectAnswer:", correctAnswer);
                 await question.save();
             }
         } else {
             // Nếu không có _id => thêm câu hỏi mới
             let correctAnswer = q.correctAnswer;
-            const formattedType = q.type.replace('_', '-');
+            const formattedType = q.type.replace(/_/g, '-');
             if (formattedType === 'fill-in-blank') {
                 if (typeof correctAnswer === 'string' && correctAnswer.includes(',')) {
                     correctAnswer = correctAnswer.split(',').map(ans => ans.trim());
@@ -359,6 +364,9 @@ module.exports.editAssignmentPost = async (req, res) => {
                 correctAnswer,
                 points: q.points || 1
             });
+
+            console.log("➡️ [TẠO - MỚI] Câu hỏi:", newQuestion.questiontext);
+            console.log("CorrectAnswer:", correctAnswer);
             await newQuestion.save();
             assignment.question.push(newQuestion._id);
         }
@@ -394,13 +402,12 @@ module.exports.submitAssignmentPost = async (req, res) => {
     const userId = req.user._id;
 
     try {
-        //Lấy bài tập
         const assignment = await Assignment.findById(assignmentId).lean();
         if (!assignment) {
             req.flash('error', 'Không tìm thấy bài tập');
             return res.redirect('back');
         }
-        // Lấy danh sách câu hỏi
+
         const questions = await Question.find({ assignmentId }).lean();
         const questionMap = {};
         questions.forEach(q => {
@@ -411,7 +418,6 @@ module.exports.submitAssignmentPost = async (req, res) => {
         const answers = [];
         let totalCorrect = 0;
 
-        // Chấm từng câu
         for (const [questionId, userAnswerRaw] of Object.entries(userAnswers)) {
             const question = questionMap[questionId];
             if (!question) continue;
@@ -419,22 +425,21 @@ module.exports.submitAssignmentPost = async (req, res) => {
             const correctAnswer = question.correctAnswer;
             let isCorrect = false;
 
-            // Chuẩn hóa dữ liệu
             if (question.type === 'single-choice' || question.type === 'single_choice') {
-                const userAnswer = String(userAnswerRaw).trim();
-                isCorrect = userAnswer === correctAnswer;
+                const userAnswer = normalizeAnswerItem(userAnswerRaw);
+                const correct = normalizeAnswerItem(correctAnswer);
+                isCorrect = userAnswer === correct;
+
                 answers.push({
                     questionId: new mongoose.Types.ObjectId(questionId),
-                    answer: userAnswer,
+                    answer: userAnswerRaw,
                     isCorrect
                 });
 
             } else if (question.type === 'multiple-choice' || question.type === 'multiple_choice') {
                 const userArray = Array.isArray(userAnswerRaw) ? userAnswerRaw : [userAnswerRaw];
                 const correctArray = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer];
-
-                const normalize = arr => arr.map(s => String(s).trim()).sort();
-                isCorrect = JSON.stringify(normalize(userArray)) === JSON.stringify(normalize(correctArray));
+                isCorrect = isEqualArray(userArray, correctArray);
 
                 answers.push({
                     questionId: new mongoose.Types.ObjectId(questionId),
@@ -443,9 +448,12 @@ module.exports.submitAssignmentPost = async (req, res) => {
                 });
 
             } else if (question.type === 'fill-in-blank') {
-                const userAnswer = String(userAnswerRaw).trim().toLowerCase();
-                const correct = String(correctAnswer).trim().toLowerCase();
-                isCorrect = userAnswer === correct;
+                const userAnswer = normalizeAnswerItem(userAnswerRaw);
+                if (Array.isArray(correctAnswer)) {
+                    isCorrect = correctAnswer.map(normalizeAnswerItem).includes(userAnswer);
+                } else {
+                    isCorrect = userAnswer === normalizeAnswerItem(correctAnswer);
+                }
 
                 answers.push({
                     questionId: new mongoose.Types.ObjectId(questionId),
@@ -453,18 +461,17 @@ module.exports.submitAssignmentPost = async (req, res) => {
                     isCorrect
                 });
             }
-            console.log("==> ĐANG CHẤM CÂU:", question.questiontext);
-            console.log("Correct:", correctAnswer);
-            console.log("User:", userAnswerRaw);
-            console.log("isCorrect?", isCorrect);
+
+            console.log("📍 ĐANG CHẤM CÂU:", question.questiontext);
+            console.log("  - Đáp án đúng trong DB:", question.correctAnswer);
+            console.log("  - Đáp án người dùng:", userAnswerRaw);
+            console.log("  - Đúng không?", isCorrect);
 
             if (isCorrect) totalCorrect++;
         }
 
-        // Tính điểm
         const grade = Math.round((totalCorrect / questions.length) * 10);
 
-        // Tạo submission
         await Submission.create({
             assignmentId,
             lessonId,
@@ -476,6 +483,7 @@ module.exports.submitAssignmentPost = async (req, res) => {
             content: req.body.content || '',
             submittedAt: new Date()
         });
+
         req.flash('success', `Nộp bài thành công! Bạn được ${grade}/10 điểm.`);
         res.redirect(`/courses/${slug}/lessons/${lessonId}/assignments/${assignmentId}`);
 
@@ -485,8 +493,6 @@ module.exports.submitAssignmentPost = async (req, res) => {
         res.redirect('back');
     }
 };
-
-// ...existing code...
 
 // [GET] /courses/:slug/lessons/:lessonId/assignments/:assignmentId/submissions
 module.exports.listSubmissions = async (req, res) => {
